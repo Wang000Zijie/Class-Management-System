@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ '编辑学员' if student else '新增学员' }}{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">{{ '编辑学员' if student else '新增学员' }}</h1>
+<form method="post" class="card border-0 shadow-sm">
+  <div class="card-body row g-3">
+    <div class="col-md-6"><label class="form-label">姓名</label><input class="form-control" name="name" required maxlength="80" value="{{ student.name if student else '' }}"></div>
+    <div class="col-md-6"><label class="form-label">学号</label><input class="form-control" name="student_id" required maxlength="50" value="{{ student.student_id if student else '' }}"></div>
+    <div class="col-md-6"><label class="form-label">院系/支部</label><input class="form-control" name="department" value="{{ student.department if student else '' }}"></div>
+    <div class="col-md-6"><label class="form-label">联系方式</label><input class="form-control" name="contact" maxlength="120" value="{{ student.contact if student else '' }}"></div>
+    <div class="col-md-6">
+      <label class="form-label">阶段</label>
+      <select class="form-select" name="stage">
+        {% for item in ['积极分子','发展对象','预备党员'] %}
+          <option value="{{ item }}" {% if student and student.stage == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% if student %}
+    <div class="col-md-6">
+      <label class="form-label">状态</label>
+      <select class="form-select" name="status">
+        {% for st in ['在读','通过','未通过','取消资格'] %}
+          <option value="{{ st }}" {% if student.status == st %}selected{% endif %}>{{ st }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+  </div>
+  <div class="card-footer bg-white">
+    <button class="btn btn-primary">保存</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('students_bp.list_students') }}">返回</a>
+  </div>
+</form>
+{% endblock %}

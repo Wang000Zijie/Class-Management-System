@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}党课管理系统{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --pc-primary: #9f1d22;
+      --pc-primary-dark: #7f1519;
+      --pc-sidebar-bg: #5f0f13;
+      --pc-sidebar-text: #f6dddd;
+      --pc-bg: #f8f6f4;
+      --pc-card: #ffffff;
+    }
+    body {
+      background: linear-gradient(135deg, #f8f6f4 0%, #efe7e3 100%);
+      min-height: 100vh;
+    }
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(180deg, var(--pc-sidebar-bg), #7d181d);
+      color: var(--pc-sidebar-text);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      padding: 1.25rem 1rem;
+      box-shadow: 6px 0 20px rgba(0, 0, 0, 0.12);
+    }
+    .sidebar .nav-link {
+      color: #f8eaea;
+      border-radius: 10px;
+      margin-bottom: 0.4rem;
+      padding: 0.55rem 0.75rem;
+    }
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+    }
+    .content-wrap {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+    }
+    .topbar {
+      background: var(--pc-card);
+      border-bottom: 1px solid #eadfda;
+      padding: 0.9rem 1.4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .page-content {
+      padding: 1.4rem;
+    }
+    .btn-primary {
+      background-color: var(--pc-primary);
+      border-color: var(--pc-primary);
+    }
+    .btn-primary:hover {
+      background-color: var(--pc-primary-dark);
+      border-color: var(--pc-primary-dark);
+    }
+    .toast-container {
+      z-index: 1080;
+    }
+  </style>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  {% if current_user.is_authenticated %}
+  <div class="layout">
+    <aside class="sidebar d-flex flex-column">
+      <div class="mb-3">
+        <div class="fw-bold fs-5 text-white">党课管理系统</div>
+        <div class="small opacity-75">组织培训数字化平台</div>
+      </div>
+      <nav class="nav flex-column mb-3">
+        <a class="nav-link" href="{{ url_for('auth_bp.dashboard') }}">📋 仪表盘</a>
+        <a class="nav-link" href="{{ url_for('semester_bp.list_semesters') }}">📅 学期管理</a>
+        <a class="nav-link" href="{{ url_for('students_bp.list_students') }}">👥 学员管理</a>
+        <a class="nav-link" href="{{ url_for('courses_bp.list_courses') }}">📚 课程与签到管理</a>
+        <a class="nav-link" href="{{ url_for('assignments_bp.assignments_overview') }}">📝 作业管理
+          {% if pending_assignment_students > 0 %}
+            <span class="badge rounded-pill text-bg-danger ms-1">{{ pending_assignment_students }}</span>
+          {% endif %}
+        </a>
+        <a class="nav-link" href="{{ url_for('volunteers_bp.volunteer_overview') }}">🙋 志愿时长
+          {% if pending_volunteer_records > 0 %}
+            <span class="badge rounded-pill text-bg-danger ms-1">{{ pending_volunteer_records }}</span>
+          {% endif %}
+        </a>
+        <a class="nav-link" href="{{ url_for('scores_bp.result_overview') }}">🏆 成绩与证书</a>
+        <a class="nav-link" href="{{ url_for('notifications_bp.template_list') }}">📢 通知模板</a>
+        <a class="nav-link" href="{{ url_for('ai_tools_bp.index') }}">🤖 AI智能同步</a>
+        {% if can_view_logs %}
+        <a class="nav-link" href="{{ url_for('auth_bp.operation_logs') }}">🧾 操作日志</a>
+        {% endif %}
+        {% if can_manage_accounts %}
+        <a class="nav-link" href="{{ url_for('auth_bp.account_list') }}">🔐 账号管理</a>
+        {% endif %}
+      </nav>
+      <div class="mt-auto pt-2 border-top border-danger-subtle">
+        <a class="nav-link" href="{{ url_for('auth_bp.logout') }}">退出登录</a>
+      </div>
+    </aside>
+
+    <div class="content-wrap">
+      <header class="topbar">
+        <div>
+          <span class="badge text-bg-danger">当前学期</span>
+          <span class="ms-2">{{ current_semester.name if current_semester else '未设置激活学期' }}</span>
+        </div>
+        <div class="text-muted">当前用户：{{ current_user.real_name or current_user.username }}（{{ current_user_role_label }}）</div>
+        <div>
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('auth_bp.change_password') }}">修改密码</a>
+        </div>
+      </header>
+      <main class="page-content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% else %}
+    {% block auth_content %}{% endblock %}
+  {% endif %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+      {% for category, message in messages %}
+      <div class="toast align-items-center border-0 {{ 'text-bg-success' if category == 'success' else 'text-bg-danger' }}" role="alert" data-bs-delay="3000" data-bs-autohide="true">
+        <div class="d-flex">
+          <div class="toast-body">{{ message }}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header">
+          <h5 class="modal-title">确认操作</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="confirmDeleteMessage">确认执行该删除操作？</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteSubmit">确认删除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.querySelectorAll('.toast').forEach(item => new bootstrap.Toast(item).show());
+
+    const modalEl = document.getElementById('confirmDeleteModal');
+    const modal = new bootstrap.Modal(modalEl);
+    const msgEl = document.getElementById('confirmDeleteMessage');
+    const submitBtn = document.getElementById('confirmDeleteSubmit');
+    let targetForm = null;
+
+    document.querySelectorAll('form[data-confirm-delete="1"]').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        targetForm = form;
+        msgEl.textContent = form.dataset.confirmMessage || '确认执行该删除操作？';
+        modal.show();
+      });
+    });
+
+    submitBtn.addEventListener('click', function() {
+      if (targetForm) {
+        targetForm.submit();
+      }
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

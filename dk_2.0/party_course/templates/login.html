@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}登录{% endblock %}
+
+{% block auth_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: radial-gradient(circle at 15% 15%, #f7e9e9, #f1e3dd 45%, #eadbd3 100%);">
+  <div class="card border-0 shadow-lg" style="width: 100%; max-width: 560px; border-radius: 16px;">
+    <div class="card-body p-4 p-md-5">
+      <div class="text-center mb-4">
+        <h1 class="h4 mb-1" style="color:#8f1f24;">党课管理系统</h1>
+        <p class="text-muted mb-0">信息科学与工程学院_党建委_管理系统</p>
+      </div>
+      <form method="post">
+        <input type="hidden" name="next" value="{{ next_url or '' }}">
+        <div class="mb-3">
+          <label class="form-label">用户名</label>
+          <input name="username" class="form-control" required>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">密码</label>
+          <input name="password" type="password" class="form-control" required minlength="6">
+        </div>
+        <button class="btn btn-primary w-100" style="background:#8f1f24;border-color:#8f1f24;">登录系统</button>
+      </form>
+
+      <hr class="my-4">
+
+      <div class="small mb-2 fw-semibold">账号权限说明</div>
+      <div class="small text-muted mb-3">
+        <div>主席：admin（最高权限，可看日志、可管理账号）</div>
+        <div>部长：buzhang（可看日志，业务权限与主席一致，但不能管理账号）</div>
+        <div>干事：ganshi（不能管理账号、不能看日志、不能编辑通知模板）</div>
+      </div>
+
+      <div class="small mb-2 fw-semibold">操作指南（建议流程）</div>
+      <div class="small text-muted">
+        <div>1. 先在学期管理确认激活学期。</div>
+        <div>2. 在学员、作业、考试、志愿录入后，进入“成绩结果总览”自动自检。</div>
+        <div>3. 若学员由达标变为不达标，证书编号会自动标记“(错误)”。</div>
+        <div>4. 主席/部长可在“操作日志”查看最近操作记录。</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}成绩结果{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h4 mb-0">成绩结果总览</h1><div class="d-flex gap-2"><form method="post" action="{{ url_for('scores_bp.calculate_scores') }}"><button class="btn btn-primary">重新计算</button></form><form method="post" action="{{ url_for('scores_bp.issue_certs') }}"><button class="btn btn-outline-primary">一键发放证书</button></form><a class="btn btn-outline-secondary" href="{{ url_for('scores_bp.export_all') }}">导出归档</a></div></div>
+
+<div class="card border-0 shadow-sm mb-3">
+	<div class="card-header bg-white fw-semibold">评分占比与规则提醒</div>
+	<div class="card-body small">
+		<div class="mb-1">积极分子：结业考试 40% + 易班课群学习 20% + 志愿实践成绩 40%</div>
+		<div class="mb-1">预备党员：结业考试 30% + 易班课群学习 20% + 志愿实践成绩 50%</div>
+		<div class="mb-1">实践活动最低要求：积极分子 4 小时，预备党员 5 小时。</div>
+		<div>结业资格规则：缺席党课次数达到总次数三分之一及以上者，取消考试资格，不予结业。</div>
+	</div>
+</div>
+
+<form class="mb-3">
+	<div class="row g-2 align-items-end">
+		<div class="col-md-3">
+			<label class="form-label">学期筛选</label>
+			<select class="form-select" name="semester_id">
+				{% for sem in semesters %}
+				<option value="{{ sem.id }}" {% if semester_id == sem.id %}selected{% endif %}>{{ sem.name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="col-md-3">
+			<label class="form-label">阶段筛选</label>
+			<select class="form-select" name="stage">{% for st in ['全部','积极分子','发展对象','预备党员'] %}<option value="{{ st }}" {% if stage==st %}selected{% endif %}>{{ st }}</option>{% endfor %}</select>
+		</div>
+		<div class="col-md-3">
+			<label class="form-label">第几期筛选</label>
+			<select class="form-select" name="period">
+				<option value="全部" {% if period == '全部' %}selected{% endif %}>全部</option>
+				{% for p in period_options %}
+				<option value="{{ p }}" {% if period == p %}selected{% endif %}>第{{ p }}期</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="col-md-2">
+			<label class="form-label">总分排序</label>
+			<select class="form-select" name="sort">
+				<option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>总分高到低</option>
+				<option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>总分低到高</option>
+			</select>
+		</div>
+		<div class="col-md-2"><button class="btn btn-outline-primary">筛选</button></div>
+	</div>
+</form>
+<div class="card border-0 shadow-sm"><div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>学员</th><th>期数</th><th>出勤(门槛)</th><th>易班学习</th><th>志愿实践</th><th>结业考试</th><th>综合</th><th>结果</th><th>证书编号</th></tr></thead><tbody>
+{% for row in rows %}
+{% set item = row.final %}
+<tr>
+	<td>{{ item.student.name }}（{{ item.student.stage }}）</td>
+	<td>{{ ('第' ~ row.stage_period ~ '期') if row.stage_period else '-' }}</td>
+	<td>
+		{{ row.attendance_display }}
+		{% if row.attendance_ok %}
+			<span class="text-success">(√)</span>
+		{% else %}
+			<span class="text-danger">(×)</span>
+		{% endif %}
+	</td>
+	<td>{{ item.assignment_score }}</td>
+	<td>{{ item.volunteer_score }}</td>
+	<td>{{ item.exam_score }}</td>
+	<td><strong>{{ item.total_score }}</strong></td>
+	<td>{% if item.is_passed %}<span class="badge text-bg-success">通过</span>{% else %}<span class="badge text-bg-danger">未通过</span>{% endif %}</td>
+	<td>{{ item.cert_number or '-' }}</td>
+</tr>
+{% endfor %}
+</tbody></table></div></div>
+<div class="small text-muted mt-2">当前通过线：{{ threshold }}</div>
+{% endblock %}

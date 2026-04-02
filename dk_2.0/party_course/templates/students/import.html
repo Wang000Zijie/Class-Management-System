@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}批量导入学员{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">批量导入学员</h1>
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data" class="row g-2 align-items-end">
+      <div class="col-md-8">
+        <label class="form-label">上传 Excel(.xlsx)</label>
+        <input class="form-control" type="file" name="file" accept=".xlsx" required>
+      </div>
+      <div class="col-md-4 d-flex gap-2">
+        <button class="btn btn-primary">开始导入</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('students_bp.download_template') }}">下载模板</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if result %}
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <p class="mb-2">成功 {{ result.success }} 条，失败 {{ result.failed|length }} 条</p>
+    {% if result.failed %}
+    <ul class="mb-0">
+      {% for item in result.failed %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

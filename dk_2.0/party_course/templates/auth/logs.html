@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}操作日志{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">操作日志</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('auth_bp.operation_logs', role=role_filter, username=username_filter, q=keyword, per_page=per_page, cn='1' if cn_mode else '0', export=1) }}">导出 Excel</a>
+    <a class="btn btn-sm {{ 'btn-primary' if cn_mode else 'btn-outline-primary' }}" href="{{ url_for('auth_bp.operation_logs', role=role_filter, username=username_filter, q=keyword, page=1, per_page=per_page, cn=1) }}">一键中文说明</a>
+    <a class="btn btn-sm {{ 'btn-primary' if not cn_mode else 'btn-outline-dark' }}" href="{{ url_for('auth_bp.operation_logs', role=role_filter, username=username_filter, q=keyword, page=1, per_page=per_page, cn=0) }}">查看原始日志</a>
+  </div>
+</div>
+
+<form class="card border-0 shadow-sm p-3 mb-3">
+  <input type="hidden" name="cn" value="{{ 1 if cn_mode else 0 }}">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label">角色筛选</label>
+      <select class="form-select" name="role">
+        <option value="全部" {% if role_filter == '全部' %}selected{% endif %}>全部</option>
+        <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>主席</option>
+        <option value="minister" {% if role_filter == 'minister' %}selected{% endif %}>部长</option>
+        <option value="staff" {% if role_filter == 'staff' %}selected{% endif %}>干事</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">用户名</label>
+      <input class="form-control" name="username" value="{{ username_filter }}" placeholder="按账号筛选">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">关键字</label>
+      <input class="form-control" name="q" value="{{ keyword }}" placeholder="动作/路径/详情">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">每页条数</label>
+      <select class="form-select" name="per_page">
+        {% for n in [10,20,30,50,100] %}
+        <option value="{{ n }}" {% if per_page == n %}selected{% endif %}>{{ n }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-outline-primary w-100">筛选</button>
+    </div>
+  </div>
+</form>
+
+<div class="small text-muted mb-2">
+  当前第 {{ pagination.page }} / {{ pagination.pages if pagination.pages else 1 }} 页，
+  共 {{ pagination.total }} 条日志。
+  {% if cn_mode %}当前为中文说明模式。{% else %}当前为原始日志模式。{% endif %}
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 170px;">时间</th>
+          <th style="width: 120px;">账号</th>
+          <th style="width: 90px;">角色</th>
+          <th style="width: 90px;">请求</th>
+          <th style="width: 240px;">路径</th>
+          <th style="width: 220px;">动作</th>
+          <th style="width: 90px;">状态码</th>
+          <th>中文说明</th>
+          <th style="width: 240px;">原始详情</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') if item.created_at else '-' }}</td>
+          <td>{{ item.username_snapshot }}</td>
+          <td>{{ role_label(item.role_snapshot) }}</td>
+          <td>{{ method_label(item.method) }}</td>
+          <td>{{ path_label(item.path) }}</td>
+          <td>{{ action_label(item.action) }}</td>
+          <td>{{ item.status_code if item.status_code is not none else '-' }}</td>
+          <td class="small">{{ cn_map.get(item.id, '-') }}</td>
+          <td class="small text-muted">{{ format_detail_chinese(item.detail) }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">暂无日志</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="mt-3">
+  <ul class="pagination pagination-sm mb-0">
+    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+      <a class="page-link" href="{{ url_for('auth_bp.operation_logs', role=role_filter, username=username_filter, q=keyword, cn=1 if cn_mode else 0, per_page=per_page, page=pagination.prev_num if pagination.has_prev else pagination.page) }}">上一页</a>
+    </li>
+    {% set start = 1 if pagination.page - 2 < 1 else pagination.page - 2 %}
+    {% set end = pagination.pages if pagination.page + 2 > pagination.pages else pagination.page + 2 %}
+    {% for p in range(start, end + 1) %}
+    <li class="page-item {% if p == pagination.page %}active{% endif %}">
+      <a class="page-link" href="{{ url_for('auth_bp.operation_logs', role=role_filter, username=username_filter, q=keyword, cn=1 if cn_mode else 0, per_page=per_page, page=p) }}">{{ p }}</a>
+    </li>
+    {% endfor %}
+    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+      <a class="page-link" href="{{ url_for('auth_bp.operation_logs', role=role_filter, username=username_filter, q=keyword, cn=1 if cn_mode else 0, per_page=per_page, page=pagination.next_num if pagination.has_next else pagination.page) }}">下一页</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}学员作业详情{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">{{ student.name }} · 作业详情</h1>
+<div class="card border-0 shadow-sm"><div class="table-responsive"><table class="table align-middle mb-0">
+  <thead class="table-light"><tr><th>类型</th><th>状态</th><th>字数</th><th>审核备注</th><th>保存</th></tr></thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <form method="post">
+      <input type="hidden" name="assignment_id" value="{{ item.id }}">
+      <td>{{ item.type }}{% if item.session %}（第{{ item.session.session_number }}讲）{% endif %}</td>
+      <td><select name="status" class="form-select form-select-sm">{% for st in ['未提交','已提交','已通过','已退回'] %}<option value="{{ st }}" {% if item.status==st %}selected{% endif %}>{{ st }}</option>{% endfor %}</select></td>
+      <td><input name="word_count" type="number" class="form-control form-control-sm" value="{{ item.word_count }}"></td>
+      <td><input name="review_note" class="form-control form-control-sm" value="{{ item.review_note or '' }}"></td>
+      <td><button class="btn btn-sm btn-primary">保存</button></td>
+      </form>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

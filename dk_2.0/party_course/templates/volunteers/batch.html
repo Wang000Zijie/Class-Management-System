@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}批量录入志愿时长{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">批量录入志愿时长</h1>
+<div class="card border-0 shadow-sm"><div class="card-body">
+  <form method="post" enctype="multipart/form-data" class="row g-2 align-items-end">
+    <div class="col-md-8"><label class="form-label">上传 Excel（学号/活动名称/时长/证明说明）</label><input class="form-control" type="file" name="file" accept=".xlsx" required></div>
+    <div class="col-md-4"><button class="btn btn-primary">开始导入</button></div>
+  </form>
+</div></div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}学员管理{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">学员管理</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{{ url_for('students_bp.list_students', stage=stage, group=group_number, q=keyword, export=1) }}">导出 Excel</a>
+    <a class="btn btn-outline-primary" href="{{ url_for('students_bp.import_students') }}">批量导入</a>
+    <a class="btn btn-outline-primary" href="{{ url_for('students_bp.grouping') }}">分组管理</a>
+    <a class="btn btn-primary" href="{{ url_for('students_bp.new_student') }}">新增学员</a>
+  </div>
+</div>
+
+<form class="card border-0 shadow-sm mb-3">
+  <div class="card-body row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label">阶段</label>
+      <select name="stage" class="form-select">
+        {% for item in ['全部','积极分子','发展对象','预备党员'] %}
+          <option value="{{ item }}" {% if stage == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">小组</label>
+      <select name="group" class="form-select">
+        <option value="">全部</option>
+        {% for g in groups %}
+          <option value="{{ g }}" {% if group_number == g|string %}selected{% endif %}>第{{ g }}组</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">关键词</label>
+      <input class="form-control" name="q" value="{{ keyword }}" placeholder="姓名或学号">
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button class="btn btn-primary">筛选</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('students_bp.list_students') }}">重置</a>
+    </div>
+  </div>
+</form>
+
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="table-light">
+      <tr>
+        <th>姓名</th>
+        <th>学号</th>
+        <th>支部</th>
+        <th>阶段</th>
+        <th>小组</th>
+        <th>状态</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for s in students %}
+      <tr>
+        <td>
+          {% set stage_period = semester.period_label_for_stage(s.stage) if semester else '' %}
+          {% if stage_period %}
+            <span class="badge text-bg-light border me-1">{{ stage_period }}</span>
+          {% endif %}
+          <a href="{{ url_for('students_bp.student_detail', student_id=s.id) }}">{{ s.name }}</a>
+        </td>
+        <td>{{ s.student_id }}</td>
+        <td>{{ s.department }}</td>
+        <td>{{ s.stage }}</td>
+        <td>{{ s.group_number or '-' }}{% if s.is_group_leader %}（组长）{% endif %}</td>
+        <td>{{ s.status }}</td>
+        <td class="d-flex gap-2">
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('students_bp.edit_student', student_id=s.id) }}">编辑</a>
+          <form method="post" action="{{ url_for('students_bp.delete_student', student_id=s.id) }}" data-confirm-delete="1" data-confirm-message="确认删除该学员？">
+            <button class="btn btn-sm btn-outline-danger">删除</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

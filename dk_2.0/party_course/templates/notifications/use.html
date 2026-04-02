@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}使用模板{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">使用模板：{{ item.title }}</h1>
+<form method="get" class="card border-0 shadow-sm mb-3">
+  <div class="card-body row g-3">
+    {% for var in variables %}
+    <div class="col-md-4"><label class="form-label">{{ var }}</label><input class="form-control" name="{{ var }}" value="{{ values[var] }}"></div>
+    {% endfor %}
+  </div>
+  <div class="card-footer bg-white"><button class="btn btn-primary">实时预览</button></div>
+</form>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <span>生成结果</span>
+    <button class="btn btn-sm btn-outline-primary" onclick="copyText()">一键复制</button>
+  </div>
+  <div class="card-body">
+    <pre id="finalText" class="mb-0" style="white-space: pre-wrap;">{{ rendered }}</pre>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyText() {
+  const text = document.getElementById('finalText').innerText;
+  navigator.clipboard.writeText(text).then(() => alert('已复制到剪贴板'));
+}
+</script>
+{% endblock %}

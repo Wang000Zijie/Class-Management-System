@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}AI智能同步{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">AI 智能同步（DeepSeek）</h1>
+
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white fw-semibold">一次配置，长期使用（管理员）</div>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('ai_tools_bp.save_config') }}" class="row g-2 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label">DeepSeek API Key（已配置可留空）</label>
+        <input class="form-control" type="password" name="deepseek_api_key" placeholder="sk-...">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Base URL</label>
+        <input class="form-control" name="deepseek_base_url" value="{{ deepseek_base_url }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">模型</label>
+        <input class="form-control" name="deepseek_model" value="{{ deepseek_model }}">
+      </div>
+      <div class="col-md-1">
+        <button class="btn btn-outline-primary">保存</button>
+      </div>
+    </form>
+    <div class="small text-muted mt-2">配置将写入 instance/app_settings.json，重启后自动加载。</div>
+  </div>
+</div>
+
+<div class="alert {{ 'alert-success' if api_loaded else 'alert-warning' }}" role="alert">
+  DeepSeek API 状态：
+  {% if api_loaded %}
+    已加载，可直接调用（同步时会自动携带当前学期学员名册进行识别与纠偏）。
+  {% else %}
+    未加载，将使用基础文本解析（效果较弱）。请在上方填写并保存 DeepSeek 配置。
+  {% endif %}
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white fw-semibold">智能同步（已合并学员/作业/考试/志愿更新）</div>
+  <div class="card-body">
+    <div class="small text-muted mb-2">支持非固定格式文本：系统会先让 AI 做结构化，再用当前学员名册做二次匹配（姓名片段、支部、阶段、小组联合消歧）。无法可靠匹配的记录会自动跳过，避免误建脏数据。AI 专用提示词文件位于 <code>ai_agent_prompts/smart_sync_prompt.txt</code>。</div>
+    <form method="post">
+      <textarea class="form-control mb-3" rows="8" name="source_text" placeholder="先进控制与智能系统科研团队党支部&#10;郑常见，未知，先进控制与智能系统科研团队党支部，积极分子，未知"></textarea>
+      <button class="btn btn-primary">执行智能同步</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

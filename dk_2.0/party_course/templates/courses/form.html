@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{ '编辑课次' if course else '新建课次' }}{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">{{ '编辑课次' if course else '新建课次' }}</h1>
+<form method="post" class="card border-0 shadow-sm">
+  <div class="card-body row g-3">
+    <div class="col-md-4"><label class="form-label">课次编号</label><input class="form-control" type="number" name="session_number" min="1" required value="{{ course.session_number if course else next_no }}"></div>
+    <div class="col-md-8"><label class="form-label">主题</label><input class="form-control" name="theme" required maxlength="200" value="{{ course.theme if course else '' }}"></div>
+    <div class="col-md-4"><label class="form-label">日期</label><input class="form-control" type="date" name="date" value="{{ course.date if course else '' }}"></div>
+    <div class="col-md-4"><label class="form-label">地点</label><input class="form-control" name="location" value="{{ course.location if course else '' }}"></div>
+    <div class="col-md-4"><label class="form-label">主讲人</label><input class="form-control" name="lecturer" value="{{ course.lecturer if course else '' }}"></div>
+    <div class="col-md-6"><label class="form-label">会议链接</label><input class="form-control" name="meeting_link" maxlength="255" value="{{ course.meeting_link if course else '' }}"></div>
+    <div class="col-md-6 d-flex align-items-end"><div class="form-check"><input class="form-check-input" type="checkbox" name="is_online" {% if course and course.is_online %}checked{% endif %}><label class="form-check-label">是否线上</label></div></div>
+    <div class="col-12"><label class="form-label">备注</label><textarea class="form-control" rows="3" name="notes">{{ course.notes if course else '' }}</textarea></div>
+  </div>
+  <div class="card-footer bg-white"><button class="btn btn-primary">保存</button></div>
+</form>
+{% endblock %}
