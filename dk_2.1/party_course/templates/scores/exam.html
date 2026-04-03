@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}考试录入{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">考试成绩录入</h1>
+
+<div class="card border-0 shadow-sm mb-3">
+	<div class="card-header bg-white fw-semibold">成绩占比说明（页面提醒）</div>
+	<div class="card-body small">
+		<div class="mb-1">积极分子：结业考试 40% + 易班课群学习 20% + 志愿实践成绩 40%</div>
+		<div class="mb-1">预备党员：结业考试 30% + 易班课群学习 20% + 志愿实践成绩 50%</div>
+		<div>备注：缺席党课次数达总次数三分之一及以上者，取消考试资格，不予结业。</div>
+	</div>
+</div>
+
+<form method="post" class="card border-0 shadow-sm mb-3"><div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>学员</th><th>分数(0-100)</th><th>作弊</th><th>说明</th></tr></thead><tbody>
+{% for stu in students %}
+{% set rec = exam_map.get(stu.id) %}
+<tr><td>{{ stu.name }}（{{ stu.student_id }}）</td><td><input class="form-control" name="score_{{ stu.id }}" type="number" step="0.1" min="0" max="100" value="{{ rec.score if rec else '' }}"></td><td><input type="checkbox" name="cheating_{{ stu.id }}" {% if rec and rec.is_cheating %}checked{% endif %}></td><td><input class="form-control" name="cheat_note_{{ stu.id }}" maxlength="255" value="{{ rec.cheating_note if rec else '' }}"></td></tr>
+{% endfor %}
+</tbody></table></div><div class="card-footer bg-white d-flex gap-2"><button class="btn btn-primary">保存录入</button><button class="btn btn-outline-secondary" formaction="{{ url_for('scores_bp.calculate_scores') }}" formmethod="post">计算综合成绩</button></div></form>
+<div class="card border-0 shadow-sm"><div class="card-body"><form method="post" enctype="multipart/form-data" class="row g-2 align-items-end"><div class="col-md-8"><label class="form-label">Excel 批量导入（学号/分数）</label><input class="form-control" type="file" name="file" accept=".xlsx" required></div><div class="col-md-4"><button class="btn btn-outline-primary">导入</button></div></form></div></div>
+{% endblock %}

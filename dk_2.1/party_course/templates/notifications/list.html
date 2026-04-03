@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}通知模板{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">通知模板</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{{ url_for('notifications_bp.template_list', export=1) }}">导出 Excel</a>
+    {% if can_edit_notification_templates %}
+    <a class="btn btn-primary" href="{{ url_for('notifications_bp.new_template') }}">新建模板</a>
+    <form method="post" action="{{ url_for('notifications_bp.cleanup_other_category') }}" data-confirm-delete="1" data-confirm-message="确认删除“其他”分类下全部模板？">
+      <button class="btn btn-outline-danger">清空“其他”栏目</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if not can_edit_notification_templates %}
+<div class="alert alert-info">当前账号为干事权限：可查看与使用模板，但不可新增、编辑或删除。</div>
+{% endif %}
+
+<div class="small text-muted mb-3">支持自主增加栏目：在新建/编辑模板时直接输入新的分类名称即可自动建立栏目。</div>
+{% for category, items in grouped.items() %}
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white fw-semibold">{{ category }}</div>
+  <div class="list-group list-group-flush">
+    {% for item in items %}
+    <div class="list-group-item">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="fw-semibold">{{ item.title }}</div>
+          <div class="text-muted small">{{ item.content[:120] }}...</div>
+        </div>
+        <div class="d-flex gap-2">
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('notifications_bp.use_template', item_id=item.id) }}">使用</a>
+          {% if can_edit_notification_templates %}
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('notifications_bp.edit_template', item_id=item.id) }}">编辑</a>
+          <form method="post" action="{{ url_for('notifications_bp.delete_template', item_id=item.id) }}" data-confirm-delete="1" data-confirm-message="确认删除该通知模板？">
+            <button class="btn btn-sm btn-outline-danger">删除</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

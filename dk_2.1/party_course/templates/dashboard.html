@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}控制台{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h4 mb-0">仪表盘总览</h1>
+  <span class="text-muted">快速查看当前激活学期状态</span>
+</div>
+
+{% if current_semester %}
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white fw-semibold">当前激活学期信息</div>
+  <div class="card-body small">
+    <div class="mb-1">学期：{{ current_semester.name }}</div>
+    <div class="mb-1">积极分子期数：{{ current_semester.period_positive or '未设置' }}</div>
+    <div class="mb-1">发展对象期数：{{ current_semester.period_development or '未设置' }}</div>
+    <div>预备党员期数：{{ current_semester.period_probationary or '未设置' }}</div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="text-muted">学员总数</div>
+        <div class="display-6 fw-semibold">{{ stats.total_students }}</div>
+        <div class="small mt-2">
+          积极分子 {{ stats.stage_counts['积极分子'] }} | 发展对象 {{ stats.stage_counts['发展对象'] }} | 预备党员 {{ stats.stage_counts['预备党员'] }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="text-muted">课次进度</div>
+        <div class="display-6 fw-semibold">{{ stats.completed_sessions }}/{{ stats.total_sessions }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="text-muted">平均出勤率</div>
+        <div class="display-6 fw-semibold">{{ stats.attendance_rate }}%</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="text-muted">通过情况</div>
+        <div class="display-6 fw-semibold">{{ stats.passed }}/{{ stats.passed + stats.failed }}</div>
+        <div class="small text-danger mt-1">未通过 {{ stats.failed }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white fw-semibold">培训要求提醒（本期）</div>
+  <div class="card-body small">
+    <div>1. 结业材料：积极分子学习心得不少于 1500 字，预备党员不少于 2000 字，严禁抄袭。</div>
+    <div>2. 培训形式：线上（易班）+ 线下专题党课（2-3 讲），需完成个人自学、小组讨论、实践活动和结业考试。</div>
+    <div>3. 小组讨论：组长组织一次讨论会，每人提交不少于 500 字讨论纪要。</div>
+    <div>4. 志愿时长：积极分子至少 4 小时，预备党员至少 5 小时。</div>
+    <div>5. 考试资格：缺席党课次数达总次数三分之一及以上者，取消考试资格，不予结业。</div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white fw-semibold">党员发展流程参考</div>
+  <div class="card-body small">
+    <div>1. 大一上 9 月提交入党申请书，团支书联系入党谈话人，做记录。</div>
+    <div>2. 约 3 个月后可推优（通常为大一下，由班级团支部推优后报院团委组织部，关注公示）。</div>
+    <div>3. 推优成功后联系团支书，进入对应的党支部积极分子群，参加积极分子党课（每学期一期）。</div>
+    <div>4. 积极分子考察期为一年，党课结业并取得积极分子结业证书（自行电子备份），可参加发展对象考试和答辩。</div>
+    <div>5. 根据综合成绩，答辩通过后转为发展对象，考察满 3 个月以上可转预备党员，同时补材料。</div>
+    <div>6. 预备党员考察满一年后，可按程序申请转正。以上所有流程皆有志愿时长要求。</div>
+  </div>
+</div>
+{% endblock %}

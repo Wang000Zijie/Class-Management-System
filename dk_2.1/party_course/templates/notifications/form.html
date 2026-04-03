@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}{{ '编辑模板' if item else '新建模板' }}{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">{{ '编辑模板' if item else '新建模板' }}</h1>
+<form method="post" class="card border-0 shadow-sm">
+  <div class="card-body row g-3">
+    <div class="col-md-8"><label class="form-label">标题</label><input class="form-control" name="title" required maxlength="200" value="{{ item.title if item else '' }}"></div>
+    <div class="col-md-4">
+      <label class="form-label">分类（可自定义栏目）</label>
+      <input class="form-control" name="category" list="categoryOptions" required value="{{ item.category if item else '' }}">
+      <datalist id="categoryOptions">
+        {% for c in categories %}
+        <option value="{{ c }}"></option>
+        {% endfor %}
+      </datalist>
+    </div>
+    <div class="col-12"><label class="form-label">模板内容（支持 {{'{{变量}}'}}）</label><textarea class="form-control" rows="10" name="content" required>{{ item.content if item else '' }}</textarea></div>
+  </div>
+  <div class="card-footer bg-white"><button class="btn btn-primary">保存</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}批量录入作业{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">批量录入作业状态</h1>
+<form method="get" class="mb-3 d-flex gap-2 align-items-end">
+  <div>
+    <label class="form-label">作业类型</label>
+    <select class="form-select" name="assignment_type">
+      {% for tp in ['课堂笔记','个人心得','小组讨论纪要'] %}<option value="{{ tp }}" {% if assignment_type==tp %}selected{% endif %}>{{ tp }}</option>{% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-outline-primary">切换</button>
+</form>
+
+<form method="post" class="card border-0 shadow-sm">
+  <input type="hidden" name="assignment_type" value="{{ assignment_type }}">
+  <input type="hidden" name="save" value="1">
+  <div class="table-responsive"><table class="table align-middle mb-0">
+    <thead class="table-light"><tr><th>学员</th><th>字数</th><th>状态</th></tr></thead>
+    <tbody>
+      {% for stu in students %}
+      {% set item = item_map.get(stu.id) %}
+      <tr>
+        <td>{{ stu.name }}（{{ stu.student_id }}）</td>
+        <td><input class="form-control form-control-sm" type="number" name="word_{{ stu.id }}" value="{{ item.word_count if item else 0 }}"></td>
+        <td><select class="form-select form-select-sm" name="status_{{ stu.id }}">{% for st in ['未提交','已提交','已通过','已退回'] %}<option value="{{ st }}" {% if item and item.status==st %}selected{% endif %}>{{ st }}</option>{% endfor %}</select></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table></div>
+  <div class="card-footer bg-white"><button class="btn btn-primary">批量保存</button></div>
+</form>
+{% endblock %}

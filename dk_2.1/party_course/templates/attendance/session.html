@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}签到操作{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">第{{ session.session_number }}讲签到</h1>
+  <form method="post" action="{{ url_for('attendance_bp.mark_all_present', session_id=session.id) }}">
+    <button class="btn btn-success">全部到场</button>
+  </form>
+</div>
+
+<div class="card border-0 shadow-sm mb-3"><div class="card-body">
+  到场 {{ count_map['到场'] }} 人 / 线上 {{ count_map['线上'] }} 人 / 请假 {{ count_map['请假'] }} 人 / 缺席 {{ count_map['缺席'] }} 人
+</div></div>
+
+<form class="card border-0 shadow-sm mb-3">
+  <div class="card-body row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">阶段筛选</label>
+      <select class="form-select" name="stage">
+        {% for st in ['全部','积极分子','发展对象','预备党员'] %}
+        <option value="{{ st }}" {% if stage == st %}selected{% endif %}>{{ st }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-outline-primary">筛选</button></div>
+  </div>
+</form>
+
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="table-light"><tr><th>姓名</th><th>学号</th><th>小组</th><th>当前状态</th><th>快速切换</th></tr></thead>
+      <tbody>
+      {% for row in rows %}
+      <tr data-student-id="{{ row.student.id }}">
+        <td>{{ row.student.name }}</td>
+        <td>{{ row.student.student_id }}</td>
+        <td>{{ row.student.group_number or '-' }}</td>
+        <td class="current-status">{{ row.status }}</td>
+        <td>
+          <div class="btn-group btn-group-sm" role="group">
+            {% for st in ['到场','线上','请假','缺席'] %}
+            <button class="btn btn-outline-secondary status-btn" data-status="{{ st }}">{{ st }}</button>
+            {% endfor %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.status-btn').forEach(btn => {
+  btn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const tr = btn.closest('tr');
+    const studentId = tr.dataset.studentId;
+    const status = btn.dataset.status;
+    let leaveReason = '';
+    if (status === '请假') {
+      leaveReason = prompt('请输入请假原因：') || '';
+    }
+    const body = new URLSearchParams({student_id: studentId, status, leave_reason: leaveReason});
+    const resp = await fetch('{{ url_for('attendance_bp.session_checkin', session_id=session.id) }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body
+    });
+    if (resp.ok) {
+      tr.querySelector('.current-status').textContent = status;
+    } else {
+      alert('保存失败，请重试');
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}学期管理{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">学期管理</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-primary" href="{{ url_for('semester_bp.list_semesters', export=1) }}">导出 Excel</a>
+    <a class="btn btn-primary" href="{{ url_for('semester_bp.new_semester') }}">新建学期</a>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>学期名称</th>
+          <th>积极分子期数</th>
+          <th>发展对象期数</th>
+          <th>预备党员期数</th>
+          <th>状态</th>
+          <th>学员数</th>
+          <th>课次数</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.semester.name }}</td>
+          <td>{{ row.semester.period_positive or '-' }}</td>
+          <td>{{ row.semester.period_development or '-' }}</td>
+          <td>{{ row.semester.period_probationary or '-' }}</td>
+          <td>
+            {% if row.semester.status == 'active' %}
+              <span class="badge text-bg-success">激活中</span>
+            {% else %}
+              <span class="badge text-bg-secondary">{{ row.semester.status }}</span>
+            {% endif %}
+          </td>
+          <td>{{ row.student_count }}</td>
+          <td>{{ row.course_count }}</td>
+          <td class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('semester_bp.edit_semester', semester_id=row.semester.id) }}">编辑</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('semester_bp.copy_semester', semester_id=row.semester.id) }}">复制配置</a>
+            {% if row.semester.status != 'active' %}
+            <form method="post" action="{{ url_for('semester_bp.activate_semester', semester_id=row.semester.id) }}">
+              <button class="btn btn-sm btn-success">设为激活</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

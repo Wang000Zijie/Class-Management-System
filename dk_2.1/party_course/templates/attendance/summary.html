@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}出勤汇总{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">出勤汇总表</h1>
+  <a class="btn btn-outline-primary" href="{{ url_for('attendance_bp.attendance_summary', export=1) }}">导出 Excel</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead class="table-light"><tr><th>姓名</th><th>学号</th>{% for s in sessions %}<th>第{{ s.session_number }}讲</th>{% endfor %}<th>出勤次数</th><th>警告</th><th>操作</th></tr></thead>
+      <tbody>
+      {% for row in table_rows %}
+      <tr>
+        <td>{{ row.student.name }}</td>
+        <td>{{ row.student.student_id }}</td>
+        {% for st in row.statuses %}
+          {% set cls = 'bg-secondary-subtle' %}
+          {% if st in ['到场','线上'] %}{% set cls = 'bg-success-subtle' %}{% elif st == '请假' %}{% set cls = 'bg-warning-subtle' %}{% elif st == '缺席' %}{% set cls = 'bg-danger-subtle' %}{% endif %}
+          <td class="{{ cls }}">{{ st }}</td>
+        {% endfor %}
+        <td>{{ row.valid_count }}</td>
+        <td>{% if row.warn %}<span class="text-danger">⚠️取消资格</span>{% endif %}</td>
+        <td>
+          {% if row.warn and row.student.status != '取消资格' %}
+          <form method="post" action="{{ url_for('attendance_bp.disqualify_student', student_id=row.student.id) }}" onsubmit="const reason = prompt('请输入取消资格原因'); if (!reason) return false; this.reason.value = reason; return true;">
+            <input type="hidden" name="reason">
+            <button class="btn btn-sm btn-outline-danger">取消资格</button>
+          </form>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="small text-muted mt-2">最低要求出勤次数：{{ semester.min_attendance_sessions }}</div>
+{% endblock %}

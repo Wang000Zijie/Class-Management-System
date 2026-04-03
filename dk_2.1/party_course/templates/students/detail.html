@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}学员详情{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">{{ student.name }} · 学员详情</h1>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm"><div class="card-body">
+      <div>学号：{{ student.student_id }}</div>
+      <div>支部：{{ student.department }}</div>
+      <div>阶段：{{ student.stage }}</div>
+      <div>小组：{{ student.group_number or '-' }}{% if student.is_group_leader %}（组长）{% endif %}</div>
+      <div>状态：{{ student.status }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm"><div class="card-body">
+      {% if final_score %}
+      <div>综合得分：<strong>{{ final_score.total_score }}</strong></div>
+      <div>是否通过：{{ '通过' if final_score.is_passed else '未通过' }}</div>
+      <div>证书编号：{{ final_score.cert_number or '-' }}</div>
+      {% else %}
+      <div class="text-muted">尚未计算综合成绩</div>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white">出勤记录</div>
+  <div class="table-responsive">
+    <table class="table mb-0"><thead><tr><th>课次</th><th>状态</th><th>登记时间</th></tr></thead><tbody>
+      {% for a in attendance_records %}
+      <tr><td>第{{ a.session.session_number }}讲 {{ a.session.theme }}</td><td>{{ a.status }}</td><td>{{ a.checked_at or '-' }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white">作业记录</div>
+  <div class="table-responsive">
+    <table class="table mb-0"><thead><tr><th>类型</th><th>状态</th><th>字数</th></tr></thead><tbody>
+      {% for item in assignment_records %}
+      <tr><td>{{ item.type }}{% if item.session %}（第{{ item.session.session_number }}讲）{% endif %}</td><td>{{ item.status }}</td><td>{{ item.word_count }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white">志愿时长</div>
+      <div class="table-responsive"><table class="table mb-0"><thead><tr><th>活动</th><th>时长</th><th>核实</th></tr></thead><tbody>
+        {% for v in volunteer_records %}
+        <tr><td>{{ v.activity_name }}</td><td>{{ v.hours }}</td><td>{{ '是' if v.verified else '否' }}</td></tr>
+        {% endfor %}
+      </tbody></table></div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white">考试记录</div>
+      <div class="table-responsive"><table class="table mb-0"><thead><tr><th>分数</th><th>作弊</th><th>时间</th></tr></thead><tbody>
+        {% for e in exam_records %}
+        <tr><td>{{ e.score }}</td><td>{{ '是' if e.is_cheating else '否' }}</td><td>{{ e.exam_time or '-' }}</td></tr>
+        {% endfor %}
+      </tbody></table></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

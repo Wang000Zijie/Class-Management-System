@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}课次详情{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">第{{ course.session_number }}讲 · {{ course.theme }}</h1>
+
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-body">
+    <div class="mb-2">出勤率 {{ rate }}%（{{ present_count }}/{{ total }}）</div>
+    <div class="progress" role="progressbar"><div class="progress-bar bg-success" style="width: {{ rate }}%">{{ rate }}%</div></div>
+  </div>
+</div>
+
+{% for stage, items in grouped.items() %}
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white">{{ stage }}</div>
+  <div class="table-responsive">
+    <table class="table mb-0"><thead><tr><th>姓名</th><th>学号</th><th>状态</th></tr></thead><tbody>
+      {% for row in items %}
+      <tr><td>{{ row.student.name }}</td><td>{{ row.student.student_id }}</td><td>{{ row.status }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

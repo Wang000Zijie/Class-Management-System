@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}成绩公示{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+  <h1 class="h4">{{ semester.name }} 党课通过名单公示</h1>
+  <div class="text-muted">仅展示通过名单与证书编号</div>
+</div>
+<div class="card border-0 shadow-sm"><div class="table-responsive"><table class="table mb-0"><thead class="table-light"><tr><th>姓名</th><th>阶段</th><th>证书编号</th></tr></thead><tbody>
+{% for item in rows %}
+<tr><td>{{ item.student.name }}</td><td>{{ item.student.stage }}</td><td>{{ item.cert_number or '-' }}</td></tr>
+{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

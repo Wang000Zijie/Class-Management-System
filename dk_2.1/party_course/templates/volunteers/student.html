@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}学员志愿记录{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">{{ student.name }} · 志愿记录（累计 {{ total_hours }} 小时）</h1>
+<div class="card border-0 shadow-sm mb-3"><div class="card-body">
+  <form method="post" class="row g-2 align-items-end">
+    <input type="hidden" name="action" value="save">
+    <div class="col-md-3"><label class="form-label">活动名称</label><input class="form-control" name="activity_name" required></div>
+    <div class="col-md-2"><label class="form-label">时长</label><input class="form-control" type="number" step="0.1" min="0" name="hours" required></div>
+    <div class="col-md-4"><label class="form-label">证明说明</label><input class="form-control" name="proof_note"></div>
+    <div class="col-md-2"><div class="form-check mt-4"><input class="form-check-input" type="checkbox" name="verified"><label class="form-check-label">已核实</label></div></div>
+    <div class="col-md-1"><button class="btn btn-primary">添加</button></div>
+  </form>
+</div></div>
+<div class="card border-0 shadow-sm"><div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>活动</th><th>时长</th><th>证明</th><th>核实</th><th>操作</th></tr></thead><tbody>
+{% for r in records %}
+<tr><td>{{ r.activity_name }}</td><td>{{ r.hours }}</td><td>{{ r.proof_note }}</td><td>{{ '是' if r.verified else '否' }}</td><td><form method="post" data-confirm-delete="1" data-confirm-message="确认删除该志愿记录？"><input type="hidden" name="action" value="delete"><input type="hidden" name="record_id" value="{{ r.id }}"><button class="btn btn-sm btn-outline-danger">删除</button></form></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

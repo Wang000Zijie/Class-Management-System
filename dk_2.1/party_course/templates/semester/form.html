@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ '编辑学期' if semester else '新建学期' }}{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">{{ '编辑学期' if semester else '新建学期' }}</h1>
+<form method="post" class="card border-0 shadow-sm">
+  <div class="card-body row g-3">
+    <div class="col-md-6">
+      <label class="form-label">名称</label>
+      <input class="form-control" name="name" required value="{{ semester.name if semester else '' }}">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">年份</label>
+      <input class="form-control" type="number" name="year" required min="2000" max="2100" value="{{ semester.year if semester else '' }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">积极分子期数（可空）</label>
+      <input class="form-control" name="period_positive" placeholder="例如 152" value="{{ semester.period_positive if semester else '' }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">发展对象期数（可空）</label>
+      <input class="form-control" name="period_development" placeholder="例如 153" value="{{ semester.period_development if semester else '' }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">预备党员期数（可空）</label>
+      <input class="form-control" name="period_probationary" placeholder="例如 154" value="{{ semester.period_probationary if semester else '' }}">
+    </div>
+    <div class="col-md-3"><label class="form-label">考试权重</label><input class="form-control" type="number" name="exam_weight" required min="0" max="100" value="{{ semester.exam_weight if semester else 40 }}"></div>
+    <div class="col-md-3"><label class="form-label">出勤权重</label><input class="form-control" type="number" name="attendance_weight" required min="0" max="100" value="{{ semester.attendance_weight if semester else 30 }}"></div>
+    <div class="col-md-3"><label class="form-label">作业权重</label><input class="form-control" type="number" name="assignment_weight" required min="0" max="100" value="{{ semester.assignment_weight if semester else 20 }}"></div>
+    <div class="col-md-3"><label class="form-label">志愿权重</label><input class="form-control" type="number" name="volunteer_weight" required min="0" max="100" value="{{ semester.volunteer_weight if semester else 10 }}"></div>
+    <div class="col-md-4"><label class="form-label">最低出勤次数</label><input class="form-control" type="number" name="min_attendance_sessions" min="0" value="{{ semester.min_attendance_sessions if semester else 2 }}"></div>
+    <div class="col-md-4"><label class="form-label">通过分数线</label><input class="form-control" type="number" step="0.1" name="pass_threshold" min="0" max="100" value="{{ semester.pass_threshold if semester else 60 }}"></div>
+    <div class="col-md-4"><label class="form-label">志愿目标时长(小时)</label><input class="form-control" type="number" step="0.1" name="volunteer_target_hours" min="0" value="{{ semester.volunteer_target_hours if semester else 0 }}"></div>
+  </div>
+  <div class="card-footer bg-white">
+    <button class="btn btn-primary">保存</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('semester_bp.list_semesters') }}">返回</a>
+  </div>
+</form>
+{% endblock %}
